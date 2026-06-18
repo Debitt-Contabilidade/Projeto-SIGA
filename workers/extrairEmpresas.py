@@ -41,15 +41,33 @@ def extrairListaEmpresas(api_token):
             cgf.append(empresa["cgf"])
             razaoSocial.append(empresa["razaoSocial"])
             regime.append(empresa["regime"])
+
+        
         
     pasta_json = Path("./temp/temp_json/temp_json_cadastro_empresas")
     pasta = Path(pasta_json)
-    resultados = []
     for arquivo in pasta.glob('*.json'):
         if str(id_execucao) in arquivo.name:
+            with open(arquivo, "r") as file:
+                data = json.load(file)
+                for empresa in json_data["data"]:
+                    cnpj.append(empresa["cnpj"])
+                    cgf.append(empresa["cgf"])
+                    razaoSocial.append(empresa["razaoSocial"])
+                    regime.append(empresa["regime"])        
+
+            os.remove(arquivo)
             print(arquivo)
 
-    
+    df_final = pd.DataFrame({
+        "cnpj": cnpj,
+        "cgf": cgf,
+        "razaoSocial": razaoSocial,
+        "regime": regime
+    })
+
+    df_final.to_csv(f"./dados/cadastro_empresas/cadastro_empresas.csv", index=False)
+
 def main():
     
     with open(f"./input/token.txt", "r") as arquivo:
