@@ -6,7 +6,7 @@ import json
 import os
 from pathlib import Path
 import uuid
-
+import math
 
 def baixarSaidasCompetencia(api_token,competencia,cnpj,codigo_dominio):
 
@@ -47,12 +47,12 @@ def baixarSaidasCompetencia(api_token,competencia,cnpj,codigo_dominio):
     if qtd_documentos <= 10:
         qtd_iteracoes = 1
     else:
-        qtd_iteracoes = qtd_documentos / 10 + 1
+        qtd_iteracoes = math.ceil(qtd_documentos / 10) + 1
 
     for i in range(1, int(qtd_iteracoes)+1):
 
         try:
-            link_consulta = f"https://siga.sefaz.ce.gov.br/api/v1/unidades/{cnpj}/documentos-fiscais/nf-e?size=10&page={i}&sort=datEmissao,asc&dat-referencia={data_inicio},{data_fim}&tipo-operacao=SAIDA"
+            link_consulta = f"https://siga.sefaz.ce.gov.br/api/v1/unidades/{cnpj}/documentos-fiscais/nf-e?size=50&page={i}&sort=datEmissao,asc&dat-referencia={data_inicio},{data_fim}&tipo-operacao=SAIDA"
             consulta = requests.get(link_consulta, headers=headers)
             json_data = consulta.json()
 

@@ -6,7 +6,7 @@ import json
 import os
 from pathlib import Path
 import uuid
-
+import math
 
 def baixarNFCECompetencia(api_token,competencia,cnpj,codigo_dominio):
 
@@ -31,8 +31,7 @@ def baixarNFCECompetencia(api_token,competencia,cnpj,codigo_dominio):
     else:
         data_fim = f"{competencia}-31"
 
-    link_consulta = f"https://siga.sefaz.ce.gov.br/api/v1/unidades/{cnpj}/documentos-fiscais/nf-e?size=10&page=1&sort=datEmissao,asc&dat-referencia={data_inicio},{data_fim}&tipo-operacao=SAIDA"
-
+    link_consulta = f"https://siga.sefaz.ce.gov.br/api/v1/unidades/{cnpj}/documentos-fiscais/nfc-e?size=50&page=1&sort=datEmissao,asc&dat-referencia={data_inicio},{data_fim}&tipo-operacao=SAIDA&resultado-processamento=AUTORIZADA"
     headers = {
         "Authorization": f"Bearer {api_token}"
     }
@@ -46,7 +45,7 @@ def baixarNFCECompetencia(api_token,competencia,cnpj,codigo_dominio):
     if qtd_documentos <= 50:
         qtd_iteracoes = 1
     else:
-        qtd_iteracoes = qtd_documentos / 50 + 1
+        qtd_iteracoes = math.ceil(qtd_documentos / 50) + 1
 
     for i in range(1, int(qtd_iteracoes)+1):
 
@@ -57,6 +56,7 @@ def baixarNFCECompetencia(api_token,competencia,cnpj,codigo_dominio):
 
             print(consulta.status_code)
             print(consulta.text)
+
             
             with open(f"./temp/temp_json/temp_json_nfce_competencia/nfce_competencia_{cnpj}_{competencia}_{i}_{id_execucao}.json", "w") as arquivo:
                 json.dump(json_data, arquivo, indent=4)
@@ -64,10 +64,22 @@ def baixarNFCECompetencia(api_token,competencia,cnpj,codigo_dominio):
             with open(f"./input/token.txt", "r") as arquivo:
            
                 api_token = arquivo.read()
+                headers = {
+                    "Authorization": f"Bearer {api_token}"
+                }
         
         except Exception as e:
+            print(consulta.text)
+            print(consulta.status_code)
+            print(consulta.json)
             print(f"Erro na consulta: {e}")
             continue
+
+        else:
+
+            with open(f"./input/token.txt", "r") as arquivo:
+           
+                api_token = arquivo.read()
 
         sleep(1)
 
